@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>TestOne</title>
+		<%= csrf_meta_tags %>	
+		<%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+		<%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+	</head>
+	<body>
+		<header>
+			<nav>
+				<ul class="nav nav-tabs">
+					<li><%= link_to "Inicio", root_path %></li>
+					<% if user_signed_in? %>
+					<li><%= link_to "editar perfil", edit_user_registration_path(current_user)%></li>
+					<li><%= link_to "Cerrar Sesión", destroy_user_session_path, method: :delete %></li>
+					<% else %>
+					<li><%= link_to "Registrarse", new_user_registration_path %></li>
+					<% end %>
+				</ul>			
+			</nav>
+		</header>
+		<p class="alert alert-info" style='<%= "display:none;" if notice.nil? %>'><%= notice %></p>
+		<p class="alert" style='<%= "display:none;" if notice.nil? %>'><%= alert %></p>
+		<%= yield %>
+	</body>
+</html>

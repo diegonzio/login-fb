@@ -1,0 +1,66 @@
+<div class="row">
+	<div class="col-md-6 col-md-offset-3" style="margin-top: 20px" align="center">
+		<h1>Aplicación para conectarse con Facebook</h1>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6 col-md-offset-3">
+		En el Gemfile agregar
+		<div class="alert alert-info" align="center"><em> gem 'omniauth-facebook'</em></div>
+	</div>
+	<div class="col-md-6 col-md-offset-3">
+		Agregar modelo User con proveedor y uid
+		<div class="alert alert-info" align="center"><em> rails g migration AddOmniauthToUsers provider:string uid:string
+rake db:migrate</em></div>
+	</div>
+	<div class="col-md-6 col-md-offset-3">
+		Declarar proveedor en (config/initializers/devise.rb)
+		<div class="alert alert-info" align="center"><em>config.omniauth :facebook, "APP_ID", "APP_SECRET"</em></div>
+	</div>
+	<div class="col-md-6 col-md-offset-3">
+		Configurar Omniauth en el modelo User (app/models/user.rb)
+		<div class="alert alert-info" align="center"><em>devise :omniauthable, :omniauth_providers => [:facebook]</em></div>
+	</div>
+	<div class="col-md-6 col-md-offset-3">
+		Configurar Rutas (config/routes.rb)
+		<div class="alert alert-info" align="center"><em>devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks" }
+</em></div>
+	</div>
+	<div class="col-md-6 col-md-offset-3">
+		En (app/controllers/users/omniauth_callbacks_controller.rb) agregar
+		<div class="alert alert-info">
+			<em>
+			def facebook<br/>
+				&nbsp;&nbsp;&nbsp;@user = User.from_omniauth(request.env["omniauth.auth"])<br/>
+				
+				&nbsp;&nbsp;&nbsp;if @user.persisted?<br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sign_in_and_redirect @user, :event => :authentication<br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set_flash_message(:notice, :success, :kind => "Facebook") if is_navigational_format?<br/>
+				&nbsp;&nbsp;&nbsp;else<br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;session["devise.facebook_data"] = request.env["omniauth.auth"]<br/>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;redirect_to new_user_registration_url<br/>
+				&nbsp;&nbsp;&nbsp;end<br />
+			end<br />
+				
+			def failure<br/>
+				&nbsp;&nbsp;&nbsp;redirect_to root_path<br/>
+			end<br/>
+			</em>
+		</div>
+	</div>
+	<div class="col-md-6 col-md-offset-3">
+		Configurar Metodo from_omniauth (app/models/user.rb)
+		<div class="alert alert-info">
+			<em>
+			def self.from_omniauth(auth)<br/>
+			&nbsp;&nbsp;&nbsp;where(provider: auth.provider, uid: auth.uid).first_or_create do |user|<br/>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user.email = auth.info.email<br/>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user.password = Devise.friendly_token[0,20]<br/>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user.name = auth.info.name   # assuming the user model has a name<br/>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user.image = auth.info.image # assuming the user model has an image<br/>
+			&nbsp;&nbsp;&nbsp;end<br/>
+			end<br/>
+			</em>
+		</div>
+	</div>
+</div>
